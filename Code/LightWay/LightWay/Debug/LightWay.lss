@@ -1,0 +1,268 @@
+
+LightWay.elf:     file format elf32-avr
+
+Sections:
+Idx Name          Size      VMA       LMA       File off  Algn
+  0 .text         0000013e  00000000  00000000  00000074  2**1
+                  CONTENTS, ALLOC, LOAD, READONLY, CODE
+  1 .bss          00000007  00800060  00800060  000001b2  2**0
+                  ALLOC
+  2 .comment      00000030  00000000  00000000  000001b2  2**0
+                  CONTENTS, READONLY
+  3 .debug_aranges 00000040  00000000  00000000  000001e2  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  4 .debug_info   0000014a  00000000  00000000  00000222  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  5 .debug_abbrev 000000a6  00000000  00000000  0000036c  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  6 .debug_line   0000010b  00000000  00000000  00000412  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  7 .debug_frame  00000098  00000000  00000000  00000520  2**2
+                  CONTENTS, READONLY, DEBUGGING
+  8 .debug_str    0000018c  00000000  00000000  000005b8  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  9 .debug_loc    000000ac  00000000  00000000  00000744  2**0
+                  CONTENTS, READONLY, DEBUGGING
+ 10 .debug_ranges 00000030  00000000  00000000  000007f0  2**0
+                  CONTENTS, READONLY, DEBUGGING
+
+Disassembly of section .text:
+
+00000000 <__vectors>:
+   0:	12 c0       	rjmp	.+36     	; 0x26 <__ctors_end>
+   2:	22 c0       	rjmp	.+68     	; 0x48 <__vector_1>
+   4:	20 c0       	rjmp	.+64     	; 0x46 <__bad_interrupt>
+   6:	1f c0       	rjmp	.+62     	; 0x46 <__bad_interrupt>
+   8:	1e c0       	rjmp	.+60     	; 0x46 <__bad_interrupt>
+   a:	1d c0       	rjmp	.+58     	; 0x46 <__bad_interrupt>
+   c:	1c c0       	rjmp	.+56     	; 0x46 <__bad_interrupt>
+   e:	1b c0       	rjmp	.+54     	; 0x46 <__bad_interrupt>
+  10:	35 c0       	rjmp	.+106    	; 0x7c <__vector_8>
+  12:	19 c0       	rjmp	.+50     	; 0x46 <__bad_interrupt>
+  14:	18 c0       	rjmp	.+48     	; 0x46 <__bad_interrupt>
+  16:	17 c0       	rjmp	.+46     	; 0x46 <__bad_interrupt>
+  18:	16 c0       	rjmp	.+44     	; 0x46 <__bad_interrupt>
+  1a:	15 c0       	rjmp	.+42     	; 0x46 <__bad_interrupt>
+  1c:	14 c0       	rjmp	.+40     	; 0x46 <__bad_interrupt>
+  1e:	13 c0       	rjmp	.+38     	; 0x46 <__bad_interrupt>
+  20:	12 c0       	rjmp	.+36     	; 0x46 <__bad_interrupt>
+  22:	11 c0       	rjmp	.+34     	; 0x46 <__bad_interrupt>
+  24:	10 c0       	rjmp	.+32     	; 0x46 <__bad_interrupt>
+
+00000026 <__ctors_end>:
+  26:	11 24       	eor	r1, r1
+  28:	1f be       	out	0x3f, r1	; 63
+  2a:	cf e5       	ldi	r28, 0x5F	; 95
+  2c:	d4 e0       	ldi	r29, 0x04	; 4
+  2e:	de bf       	out	0x3e, r29	; 62
+  30:	cd bf       	out	0x3d, r28	; 61
+
+00000032 <__do_clear_bss>:
+  32:	20 e0       	ldi	r18, 0x00	; 0
+  34:	a0 e6       	ldi	r26, 0x60	; 96
+  36:	b0 e0       	ldi	r27, 0x00	; 0
+  38:	01 c0       	rjmp	.+2      	; 0x3c <.do_clear_bss_start>
+
+0000003a <.do_clear_bss_loop>:
+  3a:	1d 92       	st	X+, r1
+
+0000003c <.do_clear_bss_start>:
+  3c:	a7 36       	cpi	r26, 0x67	; 103
+  3e:	b2 07       	cpc	r27, r18
+  40:	e1 f7       	brne	.-8      	; 0x3a <.do_clear_bss_loop>
+  42:	6a d0       	rcall	.+212    	; 0x118 <main>
+  44:	7a c0       	rjmp	.+244    	; 0x13a <_exit>
+
+00000046 <__bad_interrupt>:
+  46:	dc cf       	rjmp	.-72     	; 0x0 <__vectors>
+
+00000048 <__vector_1>:
+volatile uint8_t pir_count;
+volatile uint32_t timer_loop;
+uint16_t timer_load_val;
+
+ISR(INT0_vect)
+{
+  48:	1f 92       	push	r1
+  4a:	0f 92       	push	r0
+  4c:	0f b6       	in	r0, 0x3f	; 63
+  4e:	0f 92       	push	r0
+  50:	11 24       	eor	r1, r1
+  52:	8f 93       	push	r24
+  54:	9f 93       	push	r25
+	++pir_count;
+  56:	80 91 66 00 	lds	r24, 0x0066
+  5a:	8f 5f       	subi	r24, 0xFF	; 255
+  5c:	80 93 66 00 	sts	0x0066, r24
+	TCNT1 = TIMER_VAL;
+  60:	8f ea       	ldi	r24, 0xAF	; 175
+  62:	9c e3       	ldi	r25, 0x3C	; 60
+  64:	9d bd       	out	0x2d, r25	; 45
+  66:	8c bd       	out	0x2c, r24	; 44
+	TCCR1B |= (1 << CS12) | (1 << CS10);		// Start timer clock @ clk/1024 =>  1.024ms
+  68:	8e b5       	in	r24, 0x2e	; 46
+  6a:	85 60       	ori	r24, 0x05	; 5
+  6c:	8e bd       	out	0x2e, r24	; 46
+	
+}
+  6e:	9f 91       	pop	r25
+  70:	8f 91       	pop	r24
+  72:	0f 90       	pop	r0
+  74:	0f be       	out	0x3f, r0	; 63
+  76:	0f 90       	pop	r0
+  78:	1f 90       	pop	r1
+  7a:	18 95       	reti
+
+0000007c <__vector_8>:
+
+ISR(TIMER1_OVF_vect)
+{
+  7c:	1f 92       	push	r1
+  7e:	0f 92       	push	r0
+  80:	0f b6       	in	r0, 0x3f	; 63
+  82:	0f 92       	push	r0
+  84:	11 24       	eor	r1, r1
+  86:	8f 93       	push	r24
+  88:	9f 93       	push	r25
+  8a:	af 93       	push	r26
+  8c:	bf 93       	push	r27
+	//After overflowing the desired number of times procedd down
+	++timer_loop;
+  8e:	80 91 60 00 	lds	r24, 0x0060
+  92:	90 91 61 00 	lds	r25, 0x0061
+  96:	a0 91 62 00 	lds	r26, 0x0062
+  9a:	b0 91 63 00 	lds	r27, 0x0063
+  9e:	01 96       	adiw	r24, 0x01	; 1
+  a0:	a1 1d       	adc	r26, r1
+  a2:	b1 1d       	adc	r27, r1
+  a4:	80 93 60 00 	sts	0x0060, r24
+  a8:	90 93 61 00 	sts	0x0061, r25
+  ac:	a0 93 62 00 	sts	0x0062, r26
+  b0:	b0 93 63 00 	sts	0x0063, r27
+	if(timer_loop > LIGHT_TIMEOUT)
+  b4:	80 91 60 00 	lds	r24, 0x0060
+  b8:	90 91 61 00 	lds	r25, 0x0061
+  bc:	a0 91 62 00 	lds	r26, 0x0062
+  c0:	b0 91 63 00 	lds	r27, 0x0063
+  c4:	02 97       	sbiw	r24, 0x02	; 2
+  c6:	a1 05       	cpc	r26, r1
+  c8:	b1 05       	cpc	r27, r1
+  ca:	18 f0       	brcs	.+6      	; 0xd2 <__vector_8+0x56>
+	{
+		TCCR1B = 0x00;		// stop all timer clock
+  cc:	1e bc       	out	0x2e, r1	; 46
+		pir_count = 0;	
+  ce:	10 92 66 00 	sts	0x0066, r1
+	}
+	
+	//go to sleep
+}
+  d2:	bf 91       	pop	r27
+  d4:	af 91       	pop	r26
+  d6:	9f 91       	pop	r25
+  d8:	8f 91       	pop	r24
+  da:	0f 90       	pop	r0
+  dc:	0f be       	out	0x3f, r0	; 63
+  de:	0f 90       	pop	r0
+  e0:	1f 90       	pop	r1
+  e2:	18 95       	reti
+
+000000e4 <setup_controller>:
+
+void setup_controller()
+{
+	DDRD &= ~(1 << PIR_PIN);		// PIR Input
+  e4:	8a 98       	cbi	0x11, 2	; 17
+	PORTD |= (1 << PIR_PIN);		// Pulled up
+  e6:	92 9a       	sbi	0x12, 2	; 18
+	
+	DDRB |= (1 << LED_PIN);			// LED Input
+  e8:	b9 9a       	sbi	0x17, 1	; 23
+	PORTB &= ~(1 << LED_PIN);		// Keep LED OFF
+  ea:	c1 98       	cbi	0x18, 1	; 24
+	
+	GICR |= (1 << INT0);					// Enable interrupt on INT0 pin
+  ec:	8b b7       	in	r24, 0x3b	; 59
+  ee:	80 64       	ori	r24, 0x40	; 64
+  f0:	8b bf       	out	0x3b, r24	; 59
+	MCUCR |= (1 << ISC00) | (1 << ISC01);	// Rising edge of INT0 will trigger an interrupt
+  f2:	85 b7       	in	r24, 0x35	; 53
+  f4:	83 60       	ori	r24, 0x03	; 3
+  f6:	85 bf       	out	0x35, r24	; 53
+	
+	ACSR |= (1 << ACD);		// Disable the analog comparator to reduce power consumption
+  f8:	47 9a       	sbi	0x08, 7	; 8
+	ADCSRA &= ~(1 << ADEN);	// Ensuring ADC is kept OFF to reduce power consumption
+  fa:	37 98       	cbi	0x06, 7	; 6
+  fc:	08 95       	ret
+
+000000fe <init_timer>:
+	
+}
+
+void init_timer()
+{
+	TCCR1A = 0x00;				// Normal timer function.
+  fe:	1f bc       	out	0x2f, r1	; 47
+	TCCR1B = 0x00;				// Clock is off
+ 100:	1e bc       	out	0x2e, r1	; 46
+	TIMSK |= (1 << TOIE1);		// Overflow interrupt enabled
+ 102:	89 b7       	in	r24, 0x39	; 57
+ 104:	84 60       	ori	r24, 0x04	; 4
+ 106:	89 bf       	out	0x39, r24	; 57
+	TCNT1 = TIMER_VAL;			// time for 50ms @ clk/1024 
+ 108:	8f ea       	ldi	r24, 0xAF	; 175
+ 10a:	9c e3       	ldi	r25, 0x3C	; 60
+ 10c:	9d bd       	out	0x2d, r25	; 45
+ 10e:	8c bd       	out	0x2c, r24	; 44
+	
+	TCCR1B |= (1 << CS12) | (1 << CS10);
+ 110:	8e b5       	in	r24, 0x2e	; 46
+ 112:	85 60       	ori	r24, 0x05	; 5
+ 114:	8e bd       	out	0x2e, r24	; 46
+ 116:	08 95       	ret
+
+00000118 <main>:
+}
+
+int main(void)
+{
+	
+	setup_controller();
+ 118:	e5 df       	rcall	.-54     	; 0xe4 <setup_controller>
+	init_timer();
+ 11a:	f1 df       	rcall	.-30     	; 0xfe <init_timer>
+	pir_count = 0;
+ 11c:	10 92 66 00 	sts	0x0066, r1
+	sei();
+ 120:	78 94       	sei
+	
+	LED_ON;
+ 122:	c1 9a       	sbi	0x18, 1	; 24
+	
+    while(1)
+    {
+		if(pir_count == 0)
+ 124:	80 91 66 00 	lds	r24, 0x0066
+ 128:	81 11       	cpse	r24, r1
+ 12a:	01 c0       	rjmp	.+2      	; 0x12e <main+0x16>
+		{
+			LED_OFF;
+ 12c:	c1 98       	cbi	0x18, 1	; 24
+			// sleep;
+		}
+		
+		if(pir_count > 0)
+ 12e:	80 91 66 00 	lds	r24, 0x0066
+ 132:	88 23       	and	r24, r24
+ 134:	b9 f3       	breq	.-18     	; 0x124 <main+0xc>
+		{
+			LED_ON;
+ 136:	c1 9a       	sbi	0x18, 1	; 24
+ 138:	f5 cf       	rjmp	.-22     	; 0x124 <main+0xc>
+
+0000013a <_exit>:
+ 13a:	f8 94       	cli
+
+0000013c <__stop_program>:
+ 13c:	ff cf       	rjmp	.-2      	; 0x13c <__stop_program>
